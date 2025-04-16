@@ -6,16 +6,20 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface RecentSearch {
+  id: number;
   url: string;
-  favicon?: string;
-  title?: string;
+  favicon?: string | null;
+  title?: string | null;
+  visited_at: string;
+  user_id?: number | null;
 }
 
 interface SearchFormProps {
   onSearch: (url: string) => void;
   recentSearches: RecentSearch[];
-  onRemoveSearch: (url: string) => void;
+  onRemoveSearch: (id: number) => void;
   onVisitAgain: (url: string) => void;
+  isLoading?: boolean;
 }
 
 export default function SearchForm({ onSearch, recentSearches, onRemoveSearch, onVisitAgain }: SearchFormProps) {
