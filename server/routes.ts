@@ -158,7 +158,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Content-Security-Policy', "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;");
       
       // Stream the response to client
-      const body = await response.buffer();
+      const arrayBuffer = await response.arrayBuffer();
+      const body = Buffer.from(arrayBuffer);
       
       // If it's HTML content, rewrite URLs to ensure resources load through our proxy
       if (contentType.includes('text/html')) {
@@ -205,10 +206,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const baseTag = `<base href="${url}">`;
         html = html.replace(/<head[^>]*>/, match => `${match}${baseTag}`);
         
-        // Add script to handle form submissions
-        const formHandlerScript = `
+        // Add script to handle form submissions and notify parent window
+        const enhancementScript = `
         <script>
+          // Notify parent window when page is fully loaded
+          window.addEventListener('load', function() {
+            window.parent.postMessage('iframe:loaded', '*');
+          });
+          
+          // Catch errors and send them to parent
+          window.addEventListener('error', function(e) {
+            window.parent.postMessage('error:' + e.message, '*');
+            return false;
+          });
+          
+          // Handle form submissions
           document.addEventListener('DOMContentLoaded', function() {
+            // Send load notification again after DOM content loaded
+            window.parent.postMessage('iframe:loaded', '*');
+            
             // Handle form submissions
             document.querySelectorAll('form').forEach(form => {
               form.addEventListener('submit', function(e) {
@@ -230,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         </script>
         `;
         
-        html = html.replace('</head>', `${formHandlerScript}</head>`);
+        html = html.replace('</head>', `${enhancementScript}</head>`);
         
         res.send(html);
       } else {

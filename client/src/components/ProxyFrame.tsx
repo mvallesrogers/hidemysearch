@@ -28,29 +28,66 @@ export default function ProxyFrame({
     // Determine if the connection is secure based on URL protocol
     setSecureConnection(url.startsWith('https://'));
     
-    // Set up a timeout to simulate loading completion
-    // In a real implementation, you would listen for the iframe's load event
+    // Setup message listener for iframe load events
+    const handleIframeEvent = (event: MessageEvent) => {
+      if (typeof event.data === 'string') {
+        if (event.data === 'iframe:loaded') {
+          onLoad();
+        } else if (event.data.startsWith('error:')) {
+          onError(event.data.substring(6));
+        } else if (event.data.startsWith('navigate:')) {
+          // Handle navigation events if needed
+          const navigationUrl = event.data.substring(9);
+          if (navigationUrl) {
+            // If a URL is provided, we could navigate to it
+            console.log('Navigation requested to:', navigationUrl);
+          }
+        }
+      }
+    };
+    
+    window.addEventListener('message', handleIframeEvent);
+    
+    // Set a fallback timeout in case the iframe doesn't send messages
     const loadTimer = setTimeout(() => {
-      // We'll assume the iframe loaded successfully for this demo
-      // In a real implementation, you'd want to handle load errors properly
       onLoad();
-    }, 2000);
+    }, 5000);
     
     return () => {
+      window.removeEventListener('message', handleIframeEvent);
       clearTimeout(loadTimer);
     };
-  }, [url, onLoad]);
+  }, [url, onLoad, onError]);
 
   const handleRefresh = () => {
     if (iframeRef.current) {
+      // Show loading state
       onLoad();
-      // This would reload the iframe in a real implementation
-      // iframeRef.current.src = iframeRef.current.src;
+      // Reload the iframe by resetting the src attribute
+      const currentSrc = iframeRef.current.src;
+      iframeRef.current.src = 'about:blank';
+      setTimeout(() => {
+        if (iframeRef.current) {
+          iframeRef.current.src = currentSrc;
+        }
+      }, 100);
     }
   };
 
   const handleTryAgain = () => {
+    // Reset error state
     onLoad();
+    
+    // Reload the iframe
+    if (iframeRef.current) {
+      const currentSrc = iframeRef.current.src;
+      iframeRef.current.src = 'about:blank';
+      setTimeout(() => {
+        if (iframeRef.current) {
+          iframeRef.current.src = currentSrc;
+        }
+      }, 100);
+    }
   };
 
   return (
@@ -153,6 +190,21 @@ export default function ProxyFrame({
           sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
           className="absolute inset-0 w-full h-full border-none"
           title="Proxied content"
+          onLoad={() => {
+            // Check if iframe loaded successfully
+            try {
+              if (iframeRef.current && iframeRef.current.contentWindow) {
+                onLoad();
+              }
+            } catch (error) {
+              // If there's a security error when trying to access contentWindow,
+              // it means the iframe loaded but with a cross-origin restriction
+              onLoad();
+            }
+          }}
+          onError={() => {
+            onError("Failed to load the requested website");
+          }}
         />
       </div>
     </div>
