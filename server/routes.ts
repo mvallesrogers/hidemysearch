@@ -2,15 +2,15 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import fetch from "node-fetch";
-import { drizzle } from "drizzle-orm/neon-serverless";
-import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { recentSearches, insertRecentSearchSchema, type InsertRecentSearch } from "@shared/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 
 // Setup database connection
-const sql = neon(process.env.DATABASE_URL!);
-// @ts-ignore - Ignoring type error with neon
-const db = drizzle(sql);
+const client = postgres(process.env.DATABASE_URL!);
+// Create Drizzle instance
+const db = drizzle(client);
 
 // Helper function to validate URLs
 function isValidUrl(url: string): boolean {

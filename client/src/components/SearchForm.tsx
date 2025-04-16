@@ -22,7 +22,7 @@ interface SearchFormProps {
   isLoading?: boolean;
 }
 
-export default function SearchForm({ onSearch, recentSearches, onRemoveSearch, onVisitAgain }: SearchFormProps) {
+export default function SearchForm({ onSearch, recentSearches, onRemoveSearch, onVisitAgain, isLoading = false }: SearchFormProps) {
   const [urlInput, setUrlInput] = useState('');
   const [urlError, setUrlError] = useState(false);
   const [blockTrackers, setBlockTrackers] = useState(true);
@@ -191,7 +191,7 @@ export default function SearchForm({ onSearch, recentSearches, onRemoveSearch, o
                       Visit Again
                     </button>
                     <button 
-                      onClick={() => onRemoveSearch(item.url)}
+                      onClick={() => onRemoveSearch(item.id)}
                       className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
                     >
                       Remove

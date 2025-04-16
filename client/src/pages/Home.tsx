@@ -32,7 +32,11 @@ export default function Home() {
   // Load recent searches from API
   const { data: recentSearches = [] } = useQuery<RecentSearch[]>({
     queryKey: ['/api/recent-searches'],
-    onError: (error) => {
+    gcTime: 0,
+    onSuccess: (data) => {
+      console.log('Loaded recent searches:', data?.length || 0);
+    },
+    onError: (error: Error) => {
       console.error('Failed to load recent searches:', error);
     }
   });
