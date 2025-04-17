@@ -29,14 +29,12 @@ export default function ProxyFrame({
 }: ProxyFrameProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [secureConnection, setSecureConnection] = useState(true);
-  
+
   useEffect(() => {
-    // Use the security info utility to analyze the URL
     const securityInfo = getSecurityInfo(url);
     setSecureConnection(securityInfo.isSecure);
     logProxyActivity('Loading URL', securityInfo);
-    
-    // Setup message listener for iframe load events
+
     const handleIframeEvent = (event: MessageEvent) => {
       if (typeof event.data === 'string') {
         if (event.data === 'iframe:loaded') {
@@ -47,17 +45,12 @@ export default function ProxyFrame({
           logProxyActivity('Iframe error', errorMessage);
           onError(errorMessage);
         } else if (event.data.startsWith('navigate:')) {
-          // Handle navigation events using our utility function
           const navigationUrl = event.data.substring(9);
           if (navigationUrl) {
             logProxyActivity('Navigation requested', navigationUrl);
             handleNavigation(navigationUrl, (safeUrl: string) => {
-              // If the URL is validated and ready to navigate
               const sanitizedUrl = sanitizeUrl(safeUrl);
               if (sanitizedUrl) {
-                // This would be where you could navigate to the URL
-                // In this case, we could update the parent component's URL state
-                // For now, we'll just log it
                 logProxyActivity('Safe navigation approved', sanitizedUrl);
               }
             });
@@ -65,15 +58,14 @@ export default function ProxyFrame({
         }
       }
     };
-    
+
     window.addEventListener('message', handleIframeEvent);
-    
-    // Set a fallback timeout in case the iframe doesn't send messages
+
     const loadTimer = setTimeout(() => {
       logProxyActivity('Fallback load triggered', 'Iframe did not report loaded state');
       onLoad();
     }, 5000);
-    
+
     return () => {
       window.removeEventListener('message', handleIframeEvent);
       clearTimeout(loadTimer);
@@ -82,9 +74,7 @@ export default function ProxyFrame({
 
   const handleRefresh = () => {
     if (iframeRef.current) {
-      // Show loading state
       onLoad();
-      // Reload the iframe by resetting the src attribute
       const currentSrc = iframeRef.current.src;
       iframeRef.current.src = 'about:blank';
       setTimeout(() => {
@@ -96,10 +86,7 @@ export default function ProxyFrame({
   };
 
   const handleTryAgain = () => {
-    // Reset error state
     onLoad();
-    
-    // Reload the iframe
     if (iframeRef.current) {
       const currentSrc = iframeRef.current.src;
       iframeRef.current.src = 'about:blank';
@@ -113,7 +100,6 @@ export default function ProxyFrame({
 
   return (
     <div id="proxyContainer" className="w-full flex-grow relative proxy-frame-enter">
-      {/* Navigation Bar */}
       <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-2 flex items-center justify-between">
         <button
           onClick={onClose}
@@ -126,9 +112,7 @@ export default function ProxyFrame({
         <span className="text-sm text-slate-600 dark:text-slate-400 truncate">{url}</span>
       </div>
 
-      {/* Main Content */}
       <div className="relative flex-grow" style={{ height: 'calc(100vh - 3rem)' }}>
-        {/* Loading state */}
         {isLoading && (
           <div className="absolute inset-0 bg-white dark:bg-slate-900 bg-opacity-90 dark:bg-opacity-90 flex items-center justify-center z-10">
             <div className="text-center">
@@ -138,8 +122,7 @@ export default function ProxyFrame({
             </div>
           </div>
         )}
-        
-        {/* Error state */}
+
         {isError && (
           <div className="absolute inset-0 bg-white dark:bg-slate-900 flex items-center justify-center z-10">
             <div className="text-center max-w-md px-4">
@@ -160,31 +143,15 @@ export default function ProxyFrame({
           </div>
         )}
 
-        {/* Proxy Frame */}
         <iframe
-          src={`/proxy?url=${encodeURIComponent(url)}`}
+          ref={iframeRef}
+          src={proxyUrl(url)}
+          sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
           className="w-full h-full border-0"
           onLoad={onLoad}
           onError={() => onError("Failed to load the website")}
         />
       </div>
-    </div>
-);
-              {errorMessage || "The requested website couldn't be accessed through our proxy."}
-            </p>
-            <div className="mt-6">
-              <Button
-                onClick={handleTryAgain}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
-              >
-                Try Again
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Proxy frame toolbar */}
       <div className="bg-white dark:bg-slate-800 shadow-md border-b border-slate-200 dark:border-slate-700 px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <button className="p-1 rounded text-slate-500 hover:text-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 nav-button tooltip">
@@ -253,14 +220,11 @@ export default function ProxyFrame({
           className="absolute inset-0 w-full h-full border-none"
           title="Proxied content"
           onLoad={() => {
-            // Check if iframe loaded successfully
             try {
               if (iframeRef.current && iframeRef.current.contentWindow) {
                 onLoad();
               }
             } catch (error) {
-              // If there's a security error when trying to access contentWindow,
-              // it means the iframe loaded but with a cross-origin restriction
               onLoad();
             }
           }}
