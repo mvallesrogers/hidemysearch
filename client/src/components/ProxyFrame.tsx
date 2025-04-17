@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { proxyUrl } from '@/lib/proxyUtils';
+import { 
+  handleNavigation, 
+  getSecurityInfo,
+  sanitizeUrl, 
+  logProxyActivity
+} from '@/lib/script';
 
 interface ProxyFrameProps {
   url: string;
@@ -25,22 +31,36 @@ export default function ProxyFrame({
   const [secureConnection, setSecureConnection] = useState(true);
   
   useEffect(() => {
-    // Determine if the connection is secure based on URL protocol
-    setSecureConnection(url.startsWith('https://'));
+    // Use the security info utility to analyze the URL
+    const securityInfo = getSecurityInfo(url);
+    setSecureConnection(securityInfo.isSecure);
+    logProxyActivity('Loading URL', securityInfo);
     
     // Setup message listener for iframe load events
     const handleIframeEvent = (event: MessageEvent) => {
       if (typeof event.data === 'string') {
         if (event.data === 'iframe:loaded') {
+          logProxyActivity('Iframe loaded', url);
           onLoad();
         } else if (event.data.startsWith('error:')) {
-          onError(event.data.substring(6));
+          const errorMessage = event.data.substring(6);
+          logProxyActivity('Iframe error', errorMessage);
+          onError(errorMessage);
         } else if (event.data.startsWith('navigate:')) {
-          // Handle navigation events if needed
+          // Handle navigation events using our utility function
           const navigationUrl = event.data.substring(9);
           if (navigationUrl) {
-            // If a URL is provided, we could navigate to it
-            console.log('Navigation requested to:', navigationUrl);
+            logProxyActivity('Navigation requested', navigationUrl);
+            handleNavigation(navigationUrl, (safeUrl) => {
+              // If the URL is validated and ready to navigate
+              const sanitizedUrl = sanitizeUrl(safeUrl);
+              if (sanitizedUrl) {
+                // This would be where you could navigate to the URL
+                // In this case, we could update the parent component's URL state
+                // For now, we'll just log it
+                logProxyActivity('Safe navigation approved', sanitizedUrl);
+              }
+            });
           }
         }
       }
@@ -50,6 +70,7 @@ export default function ProxyFrame({
     
     // Set a fallback timeout in case the iframe doesn't send messages
     const loadTimer = setTimeout(() => {
+      logProxyActivity('Fallback load triggered', 'Iframe did not report loaded state');
       onLoad();
     }, 5000);
     

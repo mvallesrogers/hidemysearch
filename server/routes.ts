@@ -34,11 +34,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get recent searches
   app.get('/api/recent-searches', async (req: Request, res: Response) => {
     try {
-      const searches = await db.select().from(recentSearches).orderBy(recentSearches.visited_at).limit(10);
+      const searches = await db.select().from(recentSearches).orderBy(desc(recentSearches.visited_at)).limit(10);
       res.json(searches);
     } catch (error) {
       console.error('Error fetching recent searches:', error);
       res.status(500).json({ message: 'Failed to fetch recent searches' });
+    }
+  });
+  
+  // Site analysis endpoint - provides metadata about a site
+  app.get('/api/analyze-site', async (req: Request, res: Response) => {
+    try {
+      const urlParam = req.query.url as string;
+      
+      if (!urlParam) {
+        return res.status(400).json({ message: 'URL parameter is required' });
+      }
+      
+      // Validate and sanitize the URL
+      let url = sanitizeUrl(urlParam);
+      if (!isValidUrl(url)) {
+        return res.status(400).json({ message: 'Invalid URL provided' });
+      }
+      
+      // Fetch the target URL
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; HideMySearchBot/1.0; +https://hidemysearch.com)',
+          'Accept': 'text/html',
+        },
+        redirect: 'follow'
+      });
+      
+      if (!response.ok) {
+        return res.status(response.status).json({ 
+          message: `Failed to analyze site: ${response.statusText}`,
+          status: response.status
+        });
+      }
+      
+      // Get basic site info
+      const protocol = new URL(url).protocol;
+      const isSecure = protocol === 'https:';
+      const contentType = response.headers.get('content-type') || 'unknown';
+      const server = response.headers.get('server') || 'unknown';
+      
+      // Analyze security headers
+      const securityHeaders = {
+        'content-security-policy': response.headers.get('content-security-policy'),
+        'strict-transport-security': response.headers.get('strict-transport-security'),
+        'x-content-type-options': response.headers.get('x-content-type-options'),
+        'x-frame-options': response.headers.get('x-frame-options'),
+        'x-xss-protection': response.headers.get('x-xss-protection'),
+        'referrer-policy': response.headers.get('referrer-policy'),
+        'permissions-policy': response.headers.get('permissions-policy'),
+      };
+      
+      // Return the analysis results
+      res.json({
+        url,
+        protocol,
+        isSecure,
+        contentType,
+        server,
+        securityHeaders,
+        status: response.status,
+        statusText: response.statusText
+      });
+    } catch (error) {
+      console.error('Site analysis error:', error);
+      res.status(500).json({ 
+        message: 'Failed to analyze the site',
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
