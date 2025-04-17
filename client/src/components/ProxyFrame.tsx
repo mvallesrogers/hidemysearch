@@ -112,12 +112,12 @@ export default function ProxyFrame({
   };
 
   return (
-    <div id="proxyContainer" className="w-full flex-grow relative">
+    <div id="proxyContainer" className="w-full flex-grow relative proxy-frame-enter">
       {/* Loading state */}
       {isLoading && (
         <div className="absolute inset-0 bg-white dark:bg-slate-900 bg-opacity-90 dark:bg-opacity-90 flex items-center justify-center z-10">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto proxy-loading"></div>
             <p className="mt-4 text-slate-800 dark:text-slate-200 text-lg">Loading secure connection...</p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">This may take a moment</p>
           </div>
@@ -150,30 +150,33 @@ export default function ProxyFrame({
       {/* Proxy frame toolbar */}
       <div className="bg-white dark:bg-slate-800 shadow-md border-b border-slate-200 dark:border-slate-700 px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <button className="p-1 rounded text-slate-500 hover:text-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600">
+          <button className="p-1 rounded text-slate-500 hover:text-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 nav-button tooltip">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
             </svg>
+            <span className="tooltip-text">Back</span>
           </button>
-          <button className="p-1 rounded text-slate-500 hover:text-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600">
+          <button className="p-1 rounded text-slate-500 hover:text-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 nav-button tooltip">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
             </svg>
+            <span className="tooltip-text">Forward</span>
           </button>
           <button 
             onClick={handleRefresh}
-            className="p-1 rounded text-slate-500 hover:text-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+            className="p-1 rounded text-slate-500 hover:text-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 nav-button tooltip"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
+            <span className="tooltip-text">Refresh</span>
           </button>
         </div>
         
         <div className="flex-1 mx-4">
           <div className="relative flex items-center">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ${secureConnection ? 'text-green-500' : 'text-yellow-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 security-indicator ${secureConnection ? 'secure' : 'warning'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
@@ -181,10 +184,10 @@ export default function ProxyFrame({
               type="text" 
               readOnly 
               value={url} 
-              className="block w-full pl-10 pr-10 py-1.5 text-sm border border-slate-300 dark:border-slate-600 rounded-md bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none"
+              className="block w-full pl-10 pr-10 py-1.5 text-sm border border-slate-300 dark:border-slate-600 rounded-md bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none enhanced-input"
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-              <span className={`text-xs ${secureConnection ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'} font-medium`}>
+              <span className={`text-xs privacy-badge ${secureConnection ? 'secure' : 'warning'}`}>
                 {secureConnection ? 'Secure' : 'Not Secure'}
               </span>
             </div>

@@ -68,7 +68,7 @@ export default function SearchForm({ onSearch, recentSearches, onRemoveSearch, o
             </div>
             
             {/* URL form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 search-container">
               <div>
                 <div className="flex rounded-md shadow-sm">
                   <div className="relative flex items-stretch flex-grow focus-within:z-10">
@@ -87,12 +87,12 @@ export default function SearchForm({ onSearch, recentSearches, onRemoveSearch, o
                       }}
                       placeholder="https://example.com"
                       required
-                      className="focus:ring-blue-600 focus:border-blue-600 block w-full rounded-none rounded-l-md pl-10 sm:text-sm border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="focus:ring-blue-600 focus:border-blue-600 block w-full rounded-none rounded-l-md pl-10 sm:text-sm border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white enhanced-input"
                     />
                   </div>
                   <Button
                     type="submit"
-                    className="relative inline-flex items-center space-x-2 px-4 py-2 border border-transparent text-sm font-medium rounded-r-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
+                    className="relative inline-flex items-center space-x-2 px-4 py-2 border border-transparent text-sm font-medium rounded-r-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 nav-button"
                   >
                     <span>Browse</span>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
