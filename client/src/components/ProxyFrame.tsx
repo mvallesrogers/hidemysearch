@@ -51,7 +51,7 @@ export default function ProxyFrame({
           const navigationUrl = event.data.substring(9);
           if (navigationUrl) {
             logProxyActivity('Navigation requested', navigationUrl);
-            handleNavigation(navigationUrl, (safeUrl) => {
+            handleNavigation(navigationUrl, (safeUrl: string) => {
               // If the URL is validated and ready to navigate
               const sanitizedUrl = sanitizeUrl(safeUrl);
               if (sanitizedUrl) {
@@ -197,11 +197,12 @@ export default function ProxyFrame({
         <div>
           <button 
             onClick={onClose}
-            className="p-1 rounded text-slate-500 hover:text-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+            className="p-1 rounded text-slate-500 hover:text-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 nav-button tooltip"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
+            <span className="tooltip-text">Close</span>
           </button>
         </div>
       </div>

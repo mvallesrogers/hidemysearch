@@ -165,9 +165,9 @@ export default function SearchForm({ onSearch, recentSearches, onRemoveSearch, o
           <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-4">Recent Searches</h3>
           
           {recentSearches.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-2">
               {recentSearches.map((item, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-slate-200 dark:border-slate-700">
+                <div key={index} className="flex items-center justify-between py-2 border-b border-slate-200 dark:border-slate-700 search-history-item">
                   <div className="flex items-center">
                     <div className="w-6 h-6 flex-shrink-0 mr-3">
                       {item.favicon && (
@@ -186,13 +186,13 @@ export default function SearchForm({ onSearch, recentSearches, onRemoveSearch, o
                   <div className="flex space-x-2">
                     <button 
                       onClick={() => onVisitAgain(item.url)}
-                      className="text-xs text-blue-600 hover:text-blue-800 dark:hover:text-blue-400"
+                      className="text-xs text-blue-600 hover:text-blue-800 dark:hover:text-blue-400 nav-button"
                     >
                       Visit Again
                     </button>
                     <button 
                       onClick={() => onRemoveSearch(item.id)}
-                      className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                      className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 nav-button"
                     >
                       Remove
                     </button>
