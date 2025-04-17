@@ -1,7 +1,5 @@
 /**
- * script.js - Enhanced proxy and navigation functionality for Hide My Search
- * 
- * This script provides additional functionality for the proxy browser:
+ * Enhanced proxy and navigation functionality
  * - Improved navigation handling
  * - Enhanced page analysis
  * - Security and privacy protections
@@ -187,5 +185,5 @@ export function sanitizeUrl(url) {
 
 // For debugging
 export function logProxyActivity(action, data) {
-  console.log(`[HideMySearch Proxy] ${action}:`, data);
+  console.log(`[Proxy] ${action}:`, data);
 }

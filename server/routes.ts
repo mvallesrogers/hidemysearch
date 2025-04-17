@@ -60,7 +60,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Fetch the target URL
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; HideMySearchBot/1.0; +https://hidemysearch.com)',
+          'User-Agent': 'Mozilla/5.0 (compatible; ProxyBot/1.0)',
           'Accept': 'text/html',
         },
         redirect: 'follow'
